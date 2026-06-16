@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "Task Manager API",
+    "_postman_id": "task-manager-api-collection",
+    "description": "Collection for Task Manager API (register, login, tasks). Set environment variable `baseUrl` to http://localhost:8080",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"alice\",\n  \"email\": \"alice@example.com\",\n  \"password\": \"Password123\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/register"
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [ { "key": "Content-Type", "value": "application/json" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"username\": \"alice\",\n  \"password\": \"Password123\"\n}" },
+        "url": "{{baseUrl}}/api/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var json = pm.response.json();",
+              "if(json.token){ pm.environment.set('token', json.token); pm.environment.set('username', json.username || ''); }",
+              "pm.test('status is 200', function(){ pm.response.to.have.status(200); });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create Task",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"First Task\",\n  \"description\": \"Do something important\",\n  \"priority\": \"HIGH\",\n  \"status\": \"PENDING\"\n}" },
+        "url": "{{baseUrl}}/api/tasks"
+      }
+    },
+    {
+      "name": "List Tasks",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": "{{baseUrl}}/api/tasks"
+      }
+    },
+    {
+      "name": "Get Task",
+      "request": {
+        "method": "GET",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": "{{baseUrl}}/api/tasks/:id"
+      }
+    },
+    {
+      "name": "Update Task",
+      "request": {
+        "method": "PUT",
+        "header": [ { "key": "Content-Type", "value": "application/json" }, { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated title\",\n  \"status\": \"IN_PROGRESS\"\n}" },
+        "url": "{{baseUrl}}/api/tasks/:id"
+      }
+    },
+    {
+      "name": "Delete Task",
+      "request": {
+        "method": "DELETE",
+        "header": [ { "key": "Authorization", "value": "Bearer {{token}}" } ],
+        "url": "{{baseUrl}}/api/tasks/:id"
+      }
+    }
+  ]
+}
